@@ -1,8 +1,8 @@
 # Tiny Tapeout
 <details>
  <summary>Verilog codes</summary>
-**ALU_top**
-<br />
+ ALU_top
+**ALU_top**<br />
 module alu_top (
     input  wire [7:0] ui_in,    
     output wire [7:0] uo_out,   
