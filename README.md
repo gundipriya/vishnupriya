@@ -1,9 +1,11 @@
 # Tiny Tapeout
 <details>
  <summary>Verilog codes</summary>
- 
-**ALU_top**
+
+ <details>
+ <summary>ALU_top</summary>
            <br />
+           
             module alu_top (
             input  wire [7:0] ui_in,    
             output wire [7:0] uo_out,   
@@ -87,3 +89,86 @@
           
           
           endmodule
+
+
+ <details>
+ <summary>ALU_top</summary>
+           <br />
+           //`timescale 1ns/1ps
+
+module alu_top_tb;
+
+
+  reg [7:0] ui_in;
+  reg [7:0] uio_in;
+  reg clk, rst_n;
+  wire [7:0] uo_out;
+  wire [7:0] uio_out;
+  wire [7:0] uio_oe;
+
+
+  alu_top dut (
+    .ui_in(ui_in),
+    .uo_out(uo_out),
+    .uio_in(uio_in),
+    .uio_out(uio_out),
+    .uio_oe(uio_oe),
+    .ena(1'b1),     
+    .clk(clk),
+    .rst_n(rst_n)
+  );
+
+  
+  always #5 clk = ~clk;
+
+covergroup Alu_coverage @(posedge clk);
+   input_a: coverpoint ui_in[3:0];
+
+   input_b: coverpoint ui_in[7:4];
+
+   alu_op: coverpoint uio_in[2:0] {
+           bins add = {3'b000};
+           bins sub = {3'b001};
+           bins mul ={3'b110};
+           bins div ={3'b111};
+           bins and_op={3'b010};
+           bins or_op={3'b011};
+           bins xor_op={3'b100};
+           bins not_op={3'b101};
+    }
+
+  result: coverpoint uo_out;
+
+  cr1:cross input_a,input_b;
+endgroup
+
+Alu_coverage alu_cov;
+
+  initial begin
+  alu_cov = new;
+    clk = 0;
+    rst_n = 0;
+    ui_in = 8'd0;
+    uio_in = 8'd0;
+
+    #10 rst_n = 1;
+
+    repeat (1000) begin
+      @(posedge clk);
+      // Randomize inputs
+      ui_in = $random;
+      uio_in[2:0] = $random;  
+      uio_in[7:3] = 5'b0;     
+      #10;
+    end
+
+    
+    $finish;
+  end
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars();
+    end
+
+endmodule
